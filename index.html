@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khung Năng Lực Số Tương Tác</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Professional -->
+    <!-- Application Structure Plan: Ứng dụng được thiết kế theo cấu trúc dashboard với các tab điều hướng chính (Tổng quan, Các miền năng lực, Cấp độ, Đánh giá). Cấu trúc này được chọn để chia nhỏ thông tin phức tạp từ các văn bản thành các phần logic, dễ tiếp thu. Người dùng có thể chủ động khám phá từng khía cạnh thay vì đọc một tài liệu dài. Tương tác cốt lõi là khả năng xem chi tiết từng năng lực thông qua hệ thống accordion lồng nhau, cho phép người dùng đi từ tổng quan đến chi tiết một cách trực quan. -->
+    <!-- Visualization & Content Choices: 
+        - Tổng quan: Sử dụng các thẻ "chỉ số chính" (HTML/CSS) để nêu bật các con số quan trọng và biểu đồ radar (Chart.js/Canvas) để giới thiệu 6 miền năng lực. Mục tiêu: Cung cấp cái nhìn tổng thể nhanh chóng.
+        - Các miền năng lực: Dùng cấu trúc accordion lồng nhau (HTML/JS) để trình bày chi tiết từng miền, năng lực thành phần và các bậc trình độ. Mục tiêu: Tổ chức thông tin theo cấp bậc, cho phép khám phá sâu.
+        - Cấp độ: Dùng sơ đồ bậc thang (HTML/CSS) để thể hiện sự tiến triển và biểu đồ cột (Chart.js/Canvas) để minh họa. Mục tiêu: So sánh và làm rõ các cấp độ.
+        - Đánh giá & Chứng nhận: Dùng danh sách và bản mô phỏng chứng nhận (HTML/CSS) để cụ thể hóa quy trình. Mục tiêu: Cung cấp thông tin thực tiễn.
+        - Tất cả các yếu tố trực quan đều được thực hiện bằng HTML/CSS/Canvas, không sử dụng SVG hay Mermaid.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #FDFBF6;
+            color: #3C3633;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-btn.active {
+            border-color: #7A9D54;
+            color: #7A9D54;
+            font-weight: 600;
+        }
+        .content-panel {
+            display: none;
+        }
+        .content-panel.active {
+            display: block;
+        }
+        .accordion-header {
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+}
+        .accordion-header:hover {
+            background-color: #F0EBE3;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-[#607274] tracking-tight">Khung Năng Lực Số Tổng Hợp</h1>
+            <p class="mt-2 text-lg text-gray-600">Trực quan hóa dựa trên Thông tư 02/2025/TT-BGDĐT và Quyết định 757/QĐ-BKHCN</p>
+        </header>
+
+        <div class="w-full max-w-5xl mx-auto">
+            <div class="border-b border-gray-300 mb-8">
+                <nav class="flex justify-center -mb-px space-x-6" id="tab-navigation">
+                    <button data-tab="overview" class="tab-btn active py-4 px-1 text-gray-700 hover:text-[#7A9D54] text-base md:text-lg">Tổng Quan</button>
+                    <button data-tab="domains" class="tab-btn py-4 px-1 text-gray-700 hover:text-[#7A9D54] text-base md:text-lg">Các Miền Năng Lực</button>
+                    <button data-tab="levels" class="tab-btn py-4 px-1 text-gray-700 hover:text-[#7A9D54] text-base md:text-lg">Các Cấp Độ</button>
+                    <button data-tab="assessment" class="tab-btn py-4 px-1 text-gray-700 hover:text-[#7A9D54] text-base md:text-lg">Đánh Giá & Chứng Nhận</button>
+                </nav>
+            </div>
+
+            <div id="tab-content">
+                <div id="overview" class="content-panel active">
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <h2 class="text-2xl font-bold text-[#607274] mb-4">Giới thiệu chung</h2>
+                        <p class="text-gray-700 leading-relaxed mb-6">
+                            Ứng dụng này cung cấp một cái nhìn tổng hợp và tương tác về Khung năng lực số được xây dựng dựa trên hai văn bản pháp quy chính: Thông tư của Bộ Giáo dục và Đào tạo và Quyết định của Bộ Khoa học và Công nghệ. Mục tiêu là làm rõ cấu trúc, các thành phần và yêu cầu của khung năng lực, giúp người học, nhà giáo dục và các tổ chức dễ dàng tiếp cận và áp dụng.
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-center mb-8">
+<div class="bg-[#F0EBE3] p-4 rounded-lg">
+                                <span class="text-3xl font-bold text-[#7A9D54]">6</span>
+                                <p class="text-gray-600">Miền năng lực chính</p>
+                            </div>
+                            <div class="bg-[#F0EBE3] p-4 rounded-lg">
+                                <span class="text-3xl font-bold text-[#7A9D54]">24+</span>
+                                <p class="text-gray-600">Năng lực thành phần</p>
+                            </div>
+                            <div class="bg-[#F0EBE3] p-4 rounded-lg">
+                                <span class="text-3xl font-bold text-[#7A9D54]">4</span>
+                                <p class="text-gray-600">Trình độ</p>
+                            </div>
+                            <div class="bg-[#F0EBE3] p-4 rounded-lg">
+                                <span class="text-3xl font-bold text-[#7A9D54]">8</span>
+                                <p class="text-gray-600">Bậc năng lực</p>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-center text-[#607274] mb-4">Sáu miền năng lực cốt lõi</h3>
+                        <div class="chart-container">
+                            <canvas id="domainsRadarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="domains" class="content-panel">
+                     <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <h2 class="text-2xl font-bold text-[#607274] mb-4">Khám phá các miền năng lực</h2>
+                        <p class="text-gray-700 leading-relaxed mb-6">
+                           Khung năng lực được cấu trúc thành 6 miền chính, mỗi miền bao gồm các năng lực thành phần cụ thể. Nhấp vào từng miền để xem chi tiết các yêu cầu tương ứng với các bậc trình độ khác nhau, từ cơ bản đến chuyên sâu.
+                        </p>
+                        <div id="domains-accordion" class="space-y-3">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="levels" class="content-panel">
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <h2 class="text-2xl font-bold text-[#607274] mb-4">Các cấp độ năng lực</h2>
+                        <p class="text-gray-700 leading-relaxed mb-6">
+                            Khung năng lực số phân chia thành 4 trình độ chính, tương ứng với 8 bậc cụ thể, thể hiện sự tiến bộ từ mức độ làm quen cơ bản đến khả năng sáng tạo và dẫn dắt trong môi trường số.
+                        </p>
+                        <div class="flow-root">
+<ul role="list" class="-mb-8">
+                                <li>
+                                    <div class="relative pb-8">
+                                        <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                                        <div class="relative flex items-start space-x-3">
+                                            <div>
+                                                <div class="relative px-1">
+                                                    <div class="h-8 w-8 bg-[#E0A75E] rounded-full ring-8 ring-white flex items-center justify-center">
+                                                         <span class="text-white font-bold">1</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="min-w-0 flex-1 py-1.5">
+                                                <div class="text-md text-gray-500">
+                                                    <span class="font-semibold text-gray-900">Trình độ Sơ cấp (Bậc 1-2)</span>
+                                                    <p class="mt-1 text-sm">Có khả năng thực hiện các tác vụ đơn giản, có sự hướng dẫn. Nhận biết và sử dụng được các công cụ số cơ bản.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                               <li>
+                                    <div class="relative pb-8">
+                                        <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                                        <div class="relative flex items-start space-x-3">
+                                            <div>
+                                                <div class="relative px-1">
+                                                    <div class="h-8 w-8 bg-[#7A9D54] rounded-full ring-8 ring-white flex items-center justify-center">
+                                                         <span class="text-white font-bold">2</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="min-w-0 flex-1 py-1.5">
+                                                <div class="text-md text-gray-500">
+<span class="font-semibold text-gray-900">Trình độ Trung cấp (Bậc 3-4)</span>
+                                                    <p class="mt-1 text-sm">Có thể tự mình giải quyết các vấn đề đơn giản, được xác định rõ ràng. Lựa chọn và áp dụng công cụ số phù hợp.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                 <li>
+                                    <div class="relative pb-8">
+                                        <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                                        <div class="relative flex items-start space-x-3">
+                                            <div>
+                                                <div class="relative px-1">
+                                                    <div class="h-8 w-8 bg-[#607274] rounded-full ring-8 ring-white flex items-center justify-center">
+                                                         <span class="text-white font-bold">3</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="min-w-0 flex-1 py-1.5">
+                                                <div class="text-md text-gray-500">
+                                                    <span class="font-semibold text-gray-900">Trình độ Nâng cao (Bậc 5-6)</span>
+                                                     <p class="mt-1 text-sm">Chủ động giải quyết các vấn đề phức tạp, hướng dẫn được người khác. Thích ứng và sáng tạo trong môi trường số.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="relative pb-8">
+                                        <div class="relative flex items-start space-x-3">
+                                            <div>
+                                                <div class="relative px-1">
+                                                    <div class="h-8 w-8 bg-[#3C3633] rounded-full ring-8 ring-white flex items-center justify-center">
+                                                         <span class="text-white font-bold">4</span>
+                                                    </div>
+</div>
+                                            </div>
+                                            <div class="min-w-0 flex-1 py-1.5">
+                                                <div class="text-md text-gray-500">
+                                                    <span class="font-semibold text-gray-900">Trình độ Chuyên sâu (Bậc 7-8)</span>
+                                                    <p class="mt-1 text-sm">Dẫn dắt, tạo ra giải pháp mới, giải quyết vấn đề có tính chuyên môn cao. Đóng góp vào sự phát triển của lĩnh vực.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="assessment" class="content-panel">
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <h2 class="text-2xl font-bold text-[#607274] mb-4">Đánh giá và Cấp chứng nhận</h2>
+                        <p class="text-gray-700 leading-relaxed mb-6">
+                           Quy trình đánh giá và cấp chứng nhận được đề xuất để đảm bảo tính xác thực và công nhận rộng rãi. Các phương pháp đánh giá đa dạng, từ bài kiểm tra trực tuyến đến dự án thực tế, và chứng nhận có thể được tích hợp với các hệ thống định danh số quốc gia.
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <h3 class="text-lg font-semibold text-[#7A9D54] mb-2">Phương thức đánh giá</h3>
+                                <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                    <li>Đánh giá qua nền tảng đào tạo trực tuyến (MOOC).</li>
+                                    <li>Bài kiểm tra trắc nghiệm và tự luận.</li>
+                                    <li>Đánh giá qua sản phẩm, dự án thực tế.</li>
+                                    <li>Tự đánh giá và đánh giá đồng đẳng.</li>
+                                    <li>Sử dụng hệ thống đánh giá tự động.</li>
+                                </ul>
+                            </div>
+                            <div class="mt-8 md:mt-0">
+                                <h3 class="text-lg font-semibold text-[#7A9D54] mb-3">Mẫu chứng nhận tham khảo</h3>
+                                <div class="border-2 border-dashed border-gray-300 p-4 rounded-lg text-sm">
+<div class="text-center font-bold text-lg text-[#607274]">TRUNG TÂM KỸ NĂNG SỐ</div>
+                                    <div class="text-center font-semibold mt-1">CHỨNG NHẬN NĂNG LỰC SỐ</div>
+                                    <div class="text-center text-xs mt-1">Số: CN-2025-000123</div>
+                                    <div class="mt-4 space-y-1">
+                                        <p><strong>Họ tên:</strong> NGUYỄN VĂN A</p>
+                                        <p><strong>VNeID:</strong> VNEID-0123456789</p>
+                                        <p><strong>Cấp độ đạt được:</strong> Trung cấp (Bậc 4)</p>
+                                        <p><strong>Ngày cấp:</strong> 17/09/2025</p>
+                                    </div>
+                                    <div class="mt-4 flex justify-between items-end">
+                                        <div>
+                                            <p class="text-xs"><strong>Chữ ký điện tử</strong></p>
+                                            <p class="font-mono text-xs">(Ký bằng VNeID-DS)</p>
+                                        </div>
+                                        <div class="w-16 h-16 bg-gray-200 flex items-center justify-center text-xs">QR Code</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="text-center mt-12 text-gray-500 text-sm">
+            <p>Thông tin được tổng hợp và trực quan hóa từ Thông tư 02/2025/TT-BGDĐT và Quyết định 757/QĐ-BKHCN.</p>
+            <p>Đây là công cụ tham khảo, không thay thế văn bản gốc.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabs = document.querySelectorAll('.tab-btn');
+            const contentPanels = document.querySelectorAll('.content-panel');
+            const competencyData = {
+                "miền": [
+                    {
+                        "id": "mien-1",
+                        "title": "Miền I: Khai thác dữ liệu & thông tin",
+                        "objective": "Tìm kiếm, truy cập, lọc, đánh giá và quản lý dữ liệu, thông tin và nội dung số.",
+                        "competencies": [
+                            {
+                                "title": "1.1. Khai thác, tìm kiếm và lọc dữ liệu, thông tin và nội dung số",
+                                "levels": {
+                                    "Sơ cấp": "Xác định được nhu cầu thông tin và thực hiện tìm kiếm đơn giản.",
+"Trung cấp": "Xây dựng được chiến lược tìm kiếm, sử dụng các bộ lọc và công cụ tìm kiếm nâng cao.",
+                                    "Nâng cao": "Tinh chỉnh và tối ưu hóa liên tục các chiến lược tìm kiếm phức tạp.",
+                                    "Chuyên sâu": "Phát triển các phương pháp mới để khai thác thông tin trong các tập dữ liệu lớn."
+                                }
+                            },
+                            {
+                                "title": "1.2. Đánh giá dữ liệu, thông tin và nội dung số",
+                                "levels": {
+                                    "Sơ cấp": "Nhận biết được nguồn thông tin đáng tin cậy và không đáng tin cậy ở mức cơ bản.",
+                                    "Trung cấp": "Phân tích, so sánh và đánh giá độ tin cậy của các nguồn thông tin khác nhau.",
+                                    "Nâng cao": "Phê bình, đánh giá sâu sắc về độ chính xác, độ tin cậy và thành kiến của thông tin.",
+                                    "Chuyên sâu": "Xây dựng các tiêu chuẩn, bộ tiêu chí để đánh giá thông tin trong một lĩnh vực cụ thể."
+                                }
+                            },
+                             {
+                                "title": "1.3. Quản lý dữ liệu, thông tin và nội dung số",
+                                "levels": {
+                                    "Sơ cấp": "Lưu trữ và truy xuất thông tin, dữ liệu và nội dung số cá nhân một cách có tổ chức.",
+                                    "Trung cấp": "Sử dụng các công cụ và nền tảng để tổ chức, lưu trữ và chia sẻ thông tin hiệu quả.",
+                                    "Nâng cao": "Thiết kế và triển khai hệ thống quản lý thông tin cho cá nhân hoặc nhóm nhỏ.",
+                                    "Chuyên sâu": "Phát triển chiến lược và quản trị hệ thống thông tin cho một tổ chức."
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "mien-2",
+                        "title": "Miền II: Giao tiếp và hợp tác trên môi trường số",
+                        "objective": "Tương tác, chia sẻ, tham gia, hợp tác và quản lý định danh số.",
+                         "competencies": [
+                            {
+                                "title": "2.1. Tương tác thông qua công nghệ số",
+                                "levels": {
+                                    "Sơ cấp": "Sử dụng các công cụ giao tiếp cơ bản (email, nhắn tin) để trao đổi thông tin.",
+                                    "Trung cấp": "Lựa chọn và sử dụng hiệu quả các công cụ, nền tảng giao tiếp khác nhau tùy theo ngữ cảnh.",
+"Nâng cao": "Điều chỉnh phương thức giao tiếp cho phù hợp với các đối tượng và mục đích khác nhau trên môi trường số.",
+                                    "Chuyên sâu": "Dẫn dắt và tạo dựng các cộng đồng trực tuyến hiệu quả."
+                                }
+                            },
+                            {
+                                "title": "2.2. Chia sẻ thông tin và nội dung số",
+                                "levels": {
+                                    "Sơ cấp": "Chia sẻ các tệp tin và nội dung đơn giản thông qua các công cụ phổ biến.",
+                                    "Trung cấp": "Áp dụng các quy tắc và giấy phép bản quyền khi chia sẻ thông tin, trích dẫn nguồn rõ ràng.",
+                                    "Nâng cao": "Đóng vai trò là một đầu mối chia sẻ thông tin có giá trị và đáng tin cậy trong một cộng đồng.",
+                                    "Chuyên sâu": "Xây dựng và quản lý các nền tảng chia sẻ kiến thức."
+                                }
+                            },
+                            {
+                                "title": "2.3. Hợp tác thông qua công nghệ số",
+                                "levels": {
+                                     "Sơ cấp": "Tham gia vào các không gian làm việc chung trực tuyến với sự hướng dẫn.",
+                                     "Trung cấp": "Sử dụng các công cụ số để cùng tạo ra tài nguyên và kiến thức với người khác.",
+                                     "Nâng cao": "Chủ động tổ chức, quản lý và thúc đẩy các hoạt động hợp tác trực tuyến hiệu quả.",
+                                     "Chuyên sâu": "Nghiên cứu và áp dụng các mô hình hợp tác trên không gian số tiên tiến."
+                                }
+                            }
+                        ]
+                    },
+                     {
+                        "id": "mien-3",
+                        "title": "Miền III: Sáng tạo nội dung số",
+                        "objective": "Phát triển, tích hợp, lập trình và tuân thủ quy định về bản quyền.",
+                        "competencies": [
+                            {
+                                "title": "3.1. Phát triển nội dung số",
+                                "levels": {
+                                    "Sơ cấp": "Tạo ra các nội dung số đơn giản (văn bản, hình ảnh) bằng các công cụ cơ bản.",
+                                    "Trung cấp": "Tạo ra các nội dung đa phương tiện, kết hợp nhiều định dạng khác nhau.",
+                                    "Nâng cao": "Sản xuất nội dung số chất lượng cao, có tính chuyên nghiệp và sáng tạo.",
+                                    "Chuyên sâu": "Dẫn dắt các dự án sản xuất nội dung số quy mô lớn."
+}
+                            },
+                            {
+                                "title": "3.2. Tích hợp và chỉnh sửa nội dung số",
+                                "levels": {
+                                    "Sơ cấp": "Chỉnh sửa cơ bản các nội dung số có sẵn (cắt, ghép).",
+                                    "Trung cấp": "Tích hợp thông tin mới vào kiến thức hiện có, tạo ra nội dung mới có ý nghĩa.",
+                                    "Nâng cao": "Biên tập và tái cấu trúc các nội dung số phức tạp để tạo ra sản phẩm mới hoàn toàn.",
+                                    "Chuyên sâu": "Phát triển các quy trình làm việc để tích hợp và sáng tạo nội dung một cách hệ thống."
+                                }
+                            },
+                             {
+                                "title": "3.3. Bản quyền và giấy phép",
+                                "levels": {
+                                     "Sơ cấp": "Hiểu khái niệm cơ bản về bản quyền và sự cho phép.",
+                                     "Trung cấp": "Áp dụng được các loại giấy phép khác nhau (Creative Commons,...) khi sử dụng và tạo nội dung.",
+                                     "Nâng cao": "Phân tích và tư vấn được về các vấn đề liên quan đến sở hữu trí tuệ trên môi trường số.",
+                                     "Chuyên sâu": "Tham gia xây dựng chính sách về bản quyền và giấy phép cho tổ chức."
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "mien-4",
+                        "title": "Miền IV: An toàn và bảo mật số",
+                        "objective": "Bảo vệ thiết bị, dữ liệu cá nhân, sức khỏe và môi trường.",
+                         "competencies": [
+                            {
+                                "title": "4.1. Bảo vệ thiết bị",
+                                "levels": {
+                                     "Sơ cấp": "Thực hiện các biện pháp bảo vệ cơ bản (mật khẩu, không truy cập link lạ).",
+                                     "Trung cấp": "Sử dụng các phần mềm diệt virus, tường lửa và cập nhật hệ điều hành thường xuyên.",
+                                     "Nâng cao": "Nhận diện và ứng phó được với các mối đe dọa an ninh mạng phổ biến.",
+                                     "Chuyên sâu": "Thiết lập và quản trị một môi trường số an toàn cho nhiều người dùng."
+                                }
+                            },
+                            {
+                                "title": "4.2. Bảo vệ dữ liệu cá nhân và quyền riêng tư",
+                                "levels": {
+"Sơ cấp": "Hiểu tầm quan trọng của việc bảo vệ thông tin cá nhân.",
+                                     "Trung cấp": "Quản lý và kiểm soát được dấu vết số của bản thân, thiết lập các tùy chọn riêng tư.",
+                                     "Nâng cao": "Áp dụng các công cụ mã hóa và bảo mật để bảo vệ dữ liệu nhạy cảm.",
+                                     "Chuyên sâu": "Tư vấn và đào tạo cho người khác về các phương pháp bảo vệ quyền riêng tư."
+                                }
+                            }
+                        ]
+                    },
+                     {
+                        "id": "mien-5",
+                        "title": "Miền V: Giải quyết vấn đề kỹ thuật",
+                        "objective": "Xác định nhu cầu, lựa chọn công cụ, đổi mới và sử dụng công nghệ số một cách sáng tạo.",
+                         "competencies": [
+                            {
+                                "title": "5.1. Giải quyết các vấn đề kỹ thuật",
+                                "levels": {
+                                     "Sơ cấp": "Xác định được các sự cố kỹ thuật đơn giản và tìm kiếm sự trợ giúp.",
+                                     "Trung cấp": "Tự giải quyết được các sự cố kỹ thuật phổ biến trên thiết bị và phần mềm.",
+                                     "Nâng cao": "Chẩn đoán và xử lý các vấn đề kỹ thuật phức tạp, không thường xuyên.",
+                                     "Chuyên sâu": "Phát triển các tài liệu hướng dẫn và quy trình xử lý sự cố cho một hệ thống."
+                                }
+                            },
+                             {
+                                "title": "5.2. Xác định nhu cầu và các giải pháp công nghệ",
+                                "levels": {
+                                     "Sơ cấp": "Mô tả được nhu cầu của bản thân và xác định công cụ số tương ứng.",
+                                     "Trung cấp": "So sánh, đánh giá và lựa chọn giải pháp công nghệ phù hợp nhất cho một vấn đề.",
+                                     "Nâng cao": "Phân tích nhu cầu của một nhóm hoặc tổ chức và đề xuất giải pháp công nghệ tổng thể.",
+                                     "Chuyên sâu": "Dẫn dắt quá trình chuyển đổi số, áp dụng công nghệ mới để giải quyết các thách thức lớn."
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "mien-6",
+                        "title": "Miền VI: Học tập và phát triển trong môi trường số",
+                        "objective": "Nhận thức, tự định hướng và phát triển năng lực số liên tục.",
+                        "competencies": [
+                            {
+"title": "6.1. Sử dụng công nghệ Trí tuệ nhân tạo (AI)",
+                                "levels": {
+                                    "Sơ cấp": "Nhận biết và sử dụng được các ứng dụng AI cơ bản.",
+                                    "Trung cấp": "Phân tích được hiệu quả và so sánh được hiệu suất của các hệ thống AI khác nhau.",
+                                    "Nâng cao": "Đánh giá, phê phán các khía cạnh kỹ thuật và đạo đức của hệ thống AI.",
+                                    "Chuyên sâu": "Phát triển chiến lược ứng dụng AI và đưa ra kế hoạch dài hạn cho tổ chức."
+                                }
+                            },
+                             {
+                                "title": "6.2. Tự học và phát triển năng lực số",
+                                "levels": {
+                                    "Sơ cấp": "Nhận thức được tầm quan trọng của việc học tập và cập nhật kỹ năng số.",
+                                     "Trung cấp": "Chủ động tìm kiếm các cơ hội học tập và xác định được lộ trình phát triển cá nhân.",
+                                     "Nâng cao": "Tham gia vào các cộng đồng học tập, chia sẻ và hướng dẫn người khác.",
+                                     "Chuyên sâu": "Tiên phong trong việc thử nghiệm và áp dụng các công nghệ mới, dẫn dắt sự thay đổi."
+                                }
+                            }
+                        ]
+                    }
+                ]
+            };
+            
+            const domainsAccordionContainer = document.getElementById('domains-accordion');
+
+            competencyData.miền.forEach(domain => {
+                const domainElement = document.createElement('div');
+                domainElement.className = 'border border-gray-200 rounded-lg';
+                
+                let competenciesHTML = '';
+                domain.competencies.forEach((comp, index) => {
+                    competenciesHTML += `
+                        <div class="border-t border-gray-200">
+                            <div class="accordion-header p-4 flex justify-between items-center text-sm font-medium text-gray-700">
+                                <span>${comp.title}</span>
+                                <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                            <div class="accordion-content bg-gray-50 px-4">
+                                <div class="py-4 text-sm text-gray-600 space-y-3">
+                                    <p><strong>Sơ cấp (Bậc 1-2):</strong> ${comp.levels['Sơ cấp']}</p>
+                                    <p><strong>Trung cấp (Bậc 3-4):</strong> ${comp.levels['Trung cấp']}</p>
+<p><strong>Nâng cao (Bậc 5-6):</strong> ${comp.levels['Nâng cao']}</p>
+                                    <p><strong>Chuyên sâu (Bậc 7-8):</strong> ${comp.levels['Chuyên sâu']}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                domainElement.innerHTML = `
+                    <div class="accordion-header bg-gray-100 p-4 flex justify-between items-center rounded-t-lg">
+                        <div class="text-left">
+                           <h3 class="font-semibold text-lg text-[#7A9D54]">${domain.title}</h3>
+                           <p class="text-sm text-gray-600 mt-1">${domain.objective}</p>
+                        </div>
+                        <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="accordion-content">
+                        ${competenciesHTML}
+                    </div>
+                `;
+                domainsAccordionContainer.appendChild(domainElement);
+            });
+
+
+            document.getElementById('tab-navigation').addEventListener('click', (e) => {
+                if (e.target.matches('.tab-btn')) {
+                    const tabId = e.target.getAttribute('data-tab');
+
+                    tabs.forEach(tab => tab.classList.remove('active'));
+                    e.target.classList.add('active');
+
+                    contentPanels.forEach(panel => {
+                        if (panel.id === tabId) {
+                            panel.classList.add('active');
+                        } else {
+                            panel.classList.remove('active');
+                        }
+                    });
+                }
+            });
+
+            domainsAccordionContainer.addEventListener('click', function(e) {
+                const header = e.target.closest('.accordion-header');
+                if (!header) return;
+
+                const content = header.nextElementSibling;
+                const icon = header.querySelector('svg');
+                
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                    icon.style.transform = 'rotate(0deg)';
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    icon.style.transform = 'rotate(180deg)';
+                }
+            });
+
+
+            const radarCtx = document.getElementById('domainsRadarChart').getContext('2d');
+            new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        'I. Khai thác dữ liệu',
+                        'II. Giao tiếp & Hợp tác',
+                        'III. Sáng tạo nội dung',
+'IV. An toàn & Bảo mật',
+                        'V. Giải quyết vấn đề',
+                        'VI. Học tập & Phát triển'
+                    ],
+                    datasets: [{
+                        label: 'Các Miền Năng Lực',
+                        data: [5, 5, 5, 5, 5, 5],
+                        fill: true,
+                        backgroundColor: 'rgba(122, 157, 84, 0.2)',
+                        borderColor: 'rgb(122, 157, 84)',
+                        pointBackgroundColor: 'rgb(122, 157, 84)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(122, 157, 84)'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(60, 54, 51, 0.2)'
+                            },
+                            grid: {
+                                color: 'rgba(60, 54, 51, 0.2)'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 12,
+                                    family: "'Be Vietnam Pro', sans-serif"
+                                },
+                                color: '#3C3633'
+                            },
+                            ticks: {
+                                display: false,
+                                beginAtZero: true,
+                                max: 5,
+                                min: 0,
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
