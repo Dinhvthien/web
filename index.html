@@ -82,39 +82,71 @@
   </head>
   <body class="text-slate-700">
     <!-- Header -->
-    <header class="bg-white shadow-md sticky top-0 z-50">
-      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-20">
-          <div class="">
-            <a href="#" class="flex items-center space-x-3">
-              <img
-                class="h-12 w-auto"
-                src="/z7021536440080_9919e92399f895c9b0a429db8c76cac5.jpg"
-                alt="ITAT Logo"
-              />
-              <span class="font-bold text-lg text-blue-800 hidden lg:flex flex-shrink-0">
-                VIỆN ỨNG DỤNG CÔNG NGHỆ VÀ ĐÀO TẠO PHÁT TRIỀN NGUỒN NHÂN LỰC -
-                ITAT
-              </span>
-            </a>
+<header class="bg-white shadow-md sticky top-0 z-50">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16 sm:h-20">
+      <!-- Logo and Title (Centered on Mobile) -->
+      <div class="flex-1 flex justify-center sm:justify-start sm:flex-none">
+        <a href="#" class="flex items-center space-x-3">
+          <img
+            class="h-12 w-auto sm:h-12"
+            src="/z7021536440080_9919e92399f895c9b0a429db8c76cac5.jpg"
+            alt="ITAT Logo"
+          />
+          <div class="flex flex-col leading-tight">
+            <span class="text-xs sm:text-sm text-gray-900 hidden sm:inline">
+              Viện Ứng dụng Công nghệ & Đào tạo Phát triển Nguồn nhân lực ITAT
+            </span>
           </div>
-          <nav class="md:flex space-x-8">
-            <a href="#introduction" class="text-gray-600 font-semibold nav-link"
-              >Giới thiệu</a
-            >
-            <a href="#framework" class="text-gray-600 font-semibold nav-link"
-              >Khung Năng lực</a
-            >
-            <a href="#process" class="text-gray-600 font-semibold nav-link"
-              >Quy trình</a
-            >
-            <a href="#vision" class="text-gray-600 font-semibold nav-link"
-              >Tầm nhìn</a
-            >
-          </nav>
-        </div>
+        </a>
       </div>
-    </header>
+
+      <!-- Hamburger Button for Mobile (Right-aligned) -->
+      <button
+        id="menu-toggle"
+        class="sm:hidden text-blue-800 focus:outline-none"
+        aria-label="Toggle navigation"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16m-7 6h7"
+          />
+        </svg>
+      </button>
+
+      <!-- Navigation -->
+      <nav
+        id="nav-menu"
+        class="hidden sm:flex sm:items-center sm:space-x-8 absolute sm:static top-16 left-0 w-full sm:w-auto bg-white sm:bg-transparent shadow-md sm:shadow-none p-4 sm:p-0"
+      >
+        <a
+          href="#introduction"
+          class="block sm:inline text-gray-600 font-semibold nav-link py-2 sm:py-0 hover:text-blue-600 transition-colors"
+          >Giới thiệu</a
+        >
+        <a
+          href="#framework"
+          class="block sm:inline text-gray-600 font-semibold nav-link py-2 sm:py-0 hover:text-blue-600 transition-colors"
+          >Khung Năng lực</a
+        >
+        <a
+          href="#process"
+          class="block sm:inline text-gray-600 font-semibold nav-link py-2 sm:py-0 hover:text-blue-600 transition-colors"
+          >Quy trình</a
+        >
+        <a
+          href="#vision"
+          class="block sm:inline text-gray-600 font-semibold nav-link py-2 sm:py-0 hover:text-blue-600 transition-colors"
+          >Tầm nhìn</a
+        >
+      </nav>
+    </div>
+  </div>
+</header>
+
     <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <!-- Introduction Section -->
       <section id="introduction" class="text-center py-16">
