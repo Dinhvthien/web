@@ -94,9 +94,10 @@
             alt="ITAT Logo"
           />
           <div class="flex flex-col leading-tight">
-            <span class="text-xs sm:text-sm text-gray-900 hidden sm:inline">
-              Viện Ứng dụng Công nghệ & Đào tạo Phát triển Nguồn nhân lực ITAT
-            </span>
+<span class="hidden sm:inline text-sm sm:text-base font-semibold text-gray-900">
+  Viện Ứng dụng Công nghệ & Đào tạo Phát triển Nguồn nhân lực ITAT
+</span>
+
           </div>
         </a>
       </div>
@@ -145,6 +146,18 @@
       </nav>
     </div>
   </div>
+
+  <!-- Inline JavaScript for Hamburger Menu Toggle -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuToggle = document.getElementById("menu-toggle");
+      const navMenu = document.getElementById("nav-menu");
+
+      menuToggle.addEventListener("click", () => {
+        navMenu.classList.toggle("hidden");
+      });
+    });
+  </script>
 </header>
 
     <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
