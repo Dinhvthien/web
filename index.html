@@ -82,83 +82,90 @@
   </head>
   <body class="text-slate-700">
     <!-- Header -->
-<header class="bg-white shadow-md sticky top-0 z-50">
-  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16 sm:h-20">
-      <!-- Logo and Title (Centered on Mobile) -->
-      <div class="flex-1 flex justify-center sm:justify-start sm:flex-none">
-        <a href="#" class="flex items-center space-x-3">
-          <img
-            class="h-12 w-auto sm:h-12"
-            src="/z7021536440080_9919e92399f895c9b0a429db8c76cac5.jpg"
-            alt="ITAT Logo"
-          />
-          <div class="flex flex-col leading-tight">
-<span class="hidden sm:inline text-sm sm:text-base font-semibold text-gray-900">
-  Viện Ứng dụng Công nghệ & Đào tạo Phát triển Nguồn nhân lực ITAT
-</span>
-
+    <header class="bg-white shadow-md sticky top-0 z-50">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16 sm:h-20">
+          <!-- Logo and Title (Centered on Mobile) -->
+          <div class="flex-1 flex justify-center sm:justify-start sm:flex-none">
+            <a href="#" class="flex items-center space-x-3">
+              <img
+                class="h-12 w-auto sm:h-12"
+                src="/z7021536440080_9919e92399f895c9b0a429db8c76cac5.jpg"
+                alt="ITAT Logo"
+              />
+              <div class="flex flex-col leading-tight">
+                <span
+                  class="hidden sm:inline text-sm sm:text-base font-semibold text-gray-900"
+                >
+                  Viện Ứng dụng Công nghệ & Đào tạo Phát triển Nguồn nhân lực
+                  ITAT
+                </span>
+              </div>
+            </a>
           </div>
-        </a>
+
+          <!-- Hamburger Button for Mobile (Right-aligned) -->
+          <button
+            id="menu-toggle"
+            class="sm:hidden text-blue-800 focus:outline-none"
+            aria-label="Toggle navigation"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16m-7 6h7"
+              />
+            </svg>
+          </button>
+
+          <!-- Navigation -->
+          <nav
+            id="nav-menu"
+            class="hidden sm:flex sm:items-center sm:space-x-8 absolute sm:static top-16 left-0 w-full sm:w-auto bg-white sm:bg-transparent shadow-md sm:shadow-none p-4 sm:p-0"
+          >
+            <a
+              href="#introduction"
+              class="block sm:inline text-gray-600 font-semibold nav-link py-2 sm:py-0 hover:text-blue-600 transition-colors"
+              >Giới thiệu</a
+            >
+            <a
+              href="#framework"
+              class="block sm:inline text-gray-600 font-semibold nav-link py-2 sm:py-0 hover:text-blue-600 transition-colors"
+              >Khung Năng lực</a
+            >
+            <a
+              href="#process"
+              class="block sm:inline text-gray-600 font-semibold nav-link py-2 sm:py-0 hover:text-blue-600 transition-colors"
+              >Quy trình</a
+            >
+            <a
+              href="#vision"
+              class="block sm:inline text-gray-600 font-semibold nav-link py-2 sm:py-0 hover:text-blue-600 transition-colors"
+              >Tầm nhìn</a
+            >
+          </nav>
+        </div>
       </div>
 
-      <!-- Hamburger Button for Mobile (Right-aligned) -->
-      <button
-        id="menu-toggle"
-        class="sm:hidden text-blue-800 focus:outline-none"
-        aria-label="Toggle navigation"
-      >
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16m-7 6h7"
-          />
-        </svg>
-      </button>
+      <!-- Inline JavaScript for Hamburger Menu Toggle -->
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const menuToggle = document.getElementById("menu-toggle");
+          const navMenu = document.getElementById("nav-menu");
 
-      <!-- Navigation -->
-      <nav
-        id="nav-menu"
-        class="hidden sm:flex sm:items-center sm:space-x-8 absolute sm:static top-16 left-0 w-full sm:w-auto bg-white sm:bg-transparent shadow-md sm:shadow-none p-4 sm:p-0"
-      >
-        <a
-          href="#introduction"
-          class="block sm:inline text-gray-600 font-semibold nav-link py-2 sm:py-0 hover:text-blue-600 transition-colors"
-          >Giới thiệu</a
-        >
-        <a
-          href="#framework"
-          class="block sm:inline text-gray-600 font-semibold nav-link py-2 sm:py-0 hover:text-blue-600 transition-colors"
-          >Khung Năng lực</a
-        >
-        <a
-          href="#process"
-          class="block sm:inline text-gray-600 font-semibold nav-link py-2 sm:py-0 hover:text-blue-600 transition-colors"
-          >Quy trình</a
-        >
-        <a
-          href="#vision"
-          class="block sm:inline text-gray-600 font-semibold nav-link py-2 sm:py-0 hover:text-blue-600 transition-colors"
-          >Tầm nhìn</a
-        >
-      </nav>
-    </div>
-  </div>
-
-  <!-- Inline JavaScript for Hamburger Menu Toggle -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const menuToggle = document.getElementById("menu-toggle");
-      const navMenu = document.getElementById("nav-menu");
-
-      menuToggle.addEventListener("click", () => {
-        navMenu.classList.toggle("hidden");
-      });
-    });
-  </script>
-</header>
+          menuToggle.addEventListener("click", () => {
+            navMenu.classList.toggle("hidden");
+          });
+        });
+      </script>
+    </header>
 
     <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <!-- Introduction Section -->
@@ -314,11 +321,18 @@
           Viện Ứng dụng Công nghệ và Đào tạo Phát triển Nguồn nhân lực ITAT
         </p>
         <p class="mt-2 text-blue-200">
-          Địa chỉ: Tầng 5, Tòa nhà Sannam, số 78 phố Duy Tân, P. Dịch Vọng Hậu,
-          Q. Cầu Giấy, TP. Hà Nội
+          Trụ sở 1: Số 422, Phạm Văn Đồng, phường Cổ Nhuế 2, quận Bắc Từ Liêm,
+          thành phố Hà Nội
+        </p>
+        <p class="mt-2 text-blue-200">
+          Trụ sở 2: Số 11 ngõ 28, Dương Khuê, phường Mai Dịch, quận Cầu Giấy,
+          thành phố Hà Nội
         </p>
         <p class="text-blue-200">
-          Email: info@itat.vn | Điện thoại: 024 3205 8686
+          Email: cskh.itat@gmail.com | Điện thoại: 0345.214.260 | Website:
+          <a href="https://itat.vn" class="underline hover:text-blue-300"
+            >itat.vn</a
+          >
         </p>
         <p class="mt-4 text-sm text-blue-300">
           &copy; 2025 ITAT Institute. All rights reserved.
